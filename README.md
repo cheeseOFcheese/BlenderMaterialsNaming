@@ -1,4 +1,3 @@
-## Blender 3D Text Material Labeling
 # Blender 3D Text Material Labeling
 
 This Blender script automates the labeling of faces on a 3D model with text displaying the name of the applied material. The script supports fonts with Cyrillic characters and allows users to specify the path to the font on their computer.
