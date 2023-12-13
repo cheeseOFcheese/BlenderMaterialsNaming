@@ -13,19 +13,28 @@ def get_font():
         font = bpy.data.fonts.get("Arial Regular")
     return font
 
-# Функция для создания 3D текста с указанным текстом
-def create_text(text, font):
+# Функция для получения или создания материала "BazeText"
+def get_or_create_material():
+    material_baze_text = bpy.data.materials.get("BazeText")
+    if not material_baze_text:
+        material_baze_text = bpy.data.materials.new(name="BazeText")
+        material_baze_text.diffuse_color = (0.0, 0.5, 1.0)  # Настройте цвет по вашему усмотрению
+    return material_baze_text
+
+# Функция для создания 3D текста с указанным текстом и материалом
+def create_text(text, font, material):
     bpy.ops.object.text_add()
     text_obj = bpy.context.object
     text_obj.data.body = text
     text_obj.data.font = font
+    
+    # Применяем материал к текстовому объекту
+    text_obj.active_material = material
+    
     return text_obj
 
-# Получить все выбранные объекты типа MESH
-selected_objects = [obj for obj in bpy.context.selected_objects if obj.type == 'MESH']
-
 # Функция для проверки наличия шрифта и создания текста на гранях
-def create_text_on_faces(selected_obj):
+def create_text_on_faces(selected_obj, material_baze_text):
     if selected_obj and selected_obj.type == 'MESH':
         mesh = selected_obj.data
         
@@ -55,8 +64,8 @@ def create_text_on_faces(selected_obj):
                     # Получаем нормаль к грани
                     normal = face.normal
                     
-                    # Создаем текст с названием материала
-                    text_obj = create_text(material_name, font)
+                    # Создаем текст с названием материала и применяем материал
+                    text_obj = create_text(material_name, font, material_baze_text)
                     
                     # Устанавливаем позицию текста в центре грани
                     text_obj.location = center
@@ -69,5 +78,8 @@ def create_text_on_faces(selected_obj):
                     text_obj.scale *= 2  # Измените этот множитель по вашему усмотрению 
 
 # Создаем текст на гранях для всех выбранных объектов MESH
+selected_objects = [obj for obj in bpy.context.selected_objects if obj.type == 'MESH']
+material_baze_text = get_or_create_material()
+
 for selected_obj in selected_objects:
-    create_text_on_faces(selected_obj)
+    create_text_on_faces(selected_obj, material_baze_text)
