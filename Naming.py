@@ -13,35 +13,40 @@ class TEXT_ON_FACES_OT_operator(bpy.types.Operator):
     def execute(self, context):
         arial_cyrillic_font_path = "C:/Windows/Fonts/Arial.ttf"
         
-        def get_font():
-            # Ваша функция get_font()
-            pass
+        # Ваши функции get_font(), get_or_create_material(), create_text(), create_text_on_faces()
+        # ...
 
-        def get_or_create_material():
-            # Ваша функция get_or_create_material()
-            pass
+        return {'FINISHED'}
 
-        def create_text(text, font, material):
-            # Ваша функция create_text()
-            pass
+class TEXT_ON_FACES_PT_Panel(bpy.types.Panel):
+    bl_label = "Text on Faces Panel"
+    bl_idname = "TEXT_ON_FACES_PT_Panel"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = 'Tool'
 
-        def create_text_on_faces(selected_obj, material_baze_text):
-            # Ваша функция create_text_on_faces()
-            pass
+    def draw(self, context):
+        layout = self.layout
+        layout.operator("object.text_on_faces_operator")
+        layout.operator("object.set_name_operator")  # Это кнопка Set Name
 
-        selected_objects = [obj for obj in bpy.context.selected_objects if obj.type == 'MESH']
-        material_baze_text = get_or_create_material()
+class SET_NAME_OT_operator(bpy.types.Operator):
+    bl_idname = "object.set_name_operator"
+    bl_label = "Set Name"
 
-        for selected_obj in selected_objects:
-            create_text_on_faces(selected_obj, material_baze_text)
-        
+    def execute(self, context):
+        # Здесь можно добавить логику для изменения имени объекта
         return {'FINISHED'}
 
 def register():
     bpy.utils.register_class(TEXT_ON_FACES_OT_operator)
+    bpy.utils.register_class(TEXT_ON_FACES_PT_Panel)
+    bpy.utils.register_class(SET_NAME_OT_operator)
 
 def unregister():
     bpy.utils.unregister_class(TEXT_ON_FACES_OT_operator)
+    bpy.utils.unregister_class(TEXT_ON_FACES_PT_Panel)
+    bpy.utils.unregister_class(SET_NAME_OT_operator)
 
 if __name__ == "__main__":
     register()
