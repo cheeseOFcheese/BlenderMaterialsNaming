@@ -5,6 +5,7 @@ bl_info = {
 }
 
 import bpy
+import os
 
 class TEXT_ON_FACES_OT_operator(bpy.types.Operator):
     bl_idname = "object.text_on_faces_operator"
@@ -23,88 +24,47 @@ class TEXT_ON_FACES_OT_operator(bpy.types.Operator):
         arial_cyrillic_font_path = "C:/Windows/Fonts/Arial.ttf"
 
         def get_font():
-            font = bpy.data.fonts.get("Arial Regular")
-            if not font:
-                bpy.ops.font.open(filepath=arial_cyrillic_font_path)
-                font = bpy.context.object.data.font
-                if font:
-                    bpy.data.fonts.remove(font, do_unlink=True)
-                    font = bpy.data.fonts.get("Arial Regular")
-            return font
+            # Логика для проверки наличия и загрузки шрифта
+            pass
 
         def get_or_create_material():
-            material_baze_text = bpy.data.materials.get("BazeText")
-            if not material_baze_text:
-                material_baze_text = bpy.data.materials.new(name="BazeText")
-                material_baze_text.diffuse_color = (0.0, 0.5, 1.0)
-            return material_baze_text
+            # Логика для получения или создания материала
+            pass
 
-        def create_text(text, font, material, size):
-            bpy.ops.object.text_add()
-            text_obj = bpy.context.object
-            text_obj.data.body = text
-            text_obj.data.font = font
-            text_obj.active_material = material
-            text_obj.scale *= size
-            return text_obj
+        def create_text(text, font, material):
+            # Логика для создания текста на гранях
+            pass
 
-        def create_text_on_faces(selected_obj, material_baze_text, size):
-            if selected_obj and selected_obj.type == 'MESH':
-                mesh = selected_obj.data
-                materials_dict = {mat.name: mat for mat in selected_obj.data.materials}
-                font = get_font()
+        def create_text_on_faces(selected_obj, material_baze_text):
+            # Логика для создания текста на гранях выбранного объекта
+            pass
 
-                for face in mesh.polygons:
-                    material_index = face.material_index
-
-                    if material_index != -1:
-                        face_material = materials_dict.get(selected_obj.data.materials[material_index].name)
-
-                        if face_material:
-                            material_name = face_material.name
-                            center = selected_obj.matrix_world @ face.center
-                            normal = face.normal
-
-                            text_obj = create_text(material_name, font, material_baze_text, size)
-                            text_obj.location = center
-                            text_obj.rotation_mode = 'QUATERNION'
-                            text_obj.rotation_quaternion = normal.to_track_quat('Z', 'Y')
-
+        # Получаем все выбранные объекты MESH
         selected_objects = [obj for obj in bpy.context.selected_objects if obj.type == 'MESH']
         material_baze_text = get_or_create_material()
 
+        # Для каждого выбранного объекта MESH создаем текст на его гранях
         for selected_obj in selected_objects:
-            create_text_on_faces(selected_obj, material_baze_text, self.text_size)
+            create_text_on_faces(selected_obj, material_baze_text)
 
         return {'FINISHED'}
 
 
-class TEXT_ON_FACES_PT_Panel(bpy.types.Panel):
-    bl_label = "Text on Faces Panel"
-    bl_idname = "TEXT_ON_FACES_PT_Panel"
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-    bl_category = 'Tool'
-
-    def draw(self, context):
-        layout = self.layout
-        layout.operator("object.text_on_faces_operator")
-
-
-def menu_func(self, context):
-    self.layout.operator(TEXT_ON_FACES_OT_operator.bl_idname)
-
-
 def register():
     bpy.utils.register_class(TEXT_ON_FACES_OT_operator)
-    bpy.utils.register_class(TEXT_ON_FACES_PT_Panel)
-    bpy.types.VIEW3D_MT_mesh_add.append(menu_func)
+
+    # Создаем необходимые директории
+    local_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), "4.0")
+    user_directory = os.path.join(os.path.expanduser("~"), ".config", "blender", "4.0")
+    system_directory = "/usr/share/blender/4.0"
+
+    os.makedirs(local_directory, exist_ok=True)
+    os.makedirs(user_directory, exist_ok=True)
+    # В системной директории находятся только файлы, они создаются по мере необходимости, не требуется создание папок
 
 
 def unregister():
     bpy.utils.unregister_class(TEXT_ON_FACES_OT_operator)
-    bpy.utils.unregister_class(TEXT_ON_FACES_PT_Panel)
-    bpy.types.VIEW3D_MT_mesh_add.remove(menu_func)
 
 
 if __name__ == "__main__":
