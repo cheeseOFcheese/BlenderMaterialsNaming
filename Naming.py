@@ -1,3 +1,9 @@
+bl_info = {
+    "name": "Text on Faces",
+    "blender": (2, 80, 0),
+    "category": "Object",
+}
+
 import bpy
 
 class TEXT_ON_FACES_OT_operator(bpy.types.Operator):
@@ -14,10 +20,11 @@ class TEXT_ON_FACES_OT_operator(bpy.types.Operator):
     )
 
     def execute(self, context):
+        arial_cyrillic_font_path = "C:/Windows/Fonts/Arial.ttf"
+
         def get_font():
             font = bpy.data.fonts.get("Arial Regular")
             if not font:
-                arial_cyrillic_font_path = "C:/Windows/Fonts/Arial.ttf"
                 bpy.ops.font.open(filepath=arial_cyrillic_font_path)
                 font = bpy.context.object.data.font
                 if font:
@@ -38,7 +45,7 @@ class TEXT_ON_FACES_OT_operator(bpy.types.Operator):
             text_obj.data.body = text
             text_obj.data.font = font
             text_obj.active_material = material
-            text_obj.data.extrude = size * 0.2
+            text_obj.scale *= size
             return text_obj
 
         def create_text_on_faces(selected_obj, material_baze_text, size):
@@ -62,7 +69,6 @@ class TEXT_ON_FACES_OT_operator(bpy.types.Operator):
                             text_obj.location = center
                             text_obj.rotation_mode = 'QUATERNION'
                             text_obj.rotation_quaternion = normal.to_track_quat('Z', 'Y')
-                            text_obj.scale *= 2
 
         selected_objects = [obj for obj in bpy.context.selected_objects if obj.type == 'MESH']
         material_baze_text = get_or_create_material()
@@ -72,17 +78,33 @@ class TEXT_ON_FACES_OT_operator(bpy.types.Operator):
 
         return {'FINISHED'}
 
-    @classmethod
-    def poll(cls, context):
-        return context.object and context.object.type == 'MESH'
+
+class TEXT_ON_FACES_PT_Panel(bpy.types.Panel):
+    bl_label = "Text on Faces Panel"
+    bl_idname = "TEXT_ON_FACES_PT_Panel"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = 'Tool'
+
+    def draw(self, context):
+        layout = self.layout
+        layout.operator("object.text_on_faces_operator")
+
+
+def menu_func(self, context):
+    self.layout.operator(TEXT_ON_FACES_OT_operator.bl_idname)
 
 
 def register():
     bpy.utils.register_class(TEXT_ON_FACES_OT_operator)
+    bpy.utils.register_class(TEXT_ON_FACES_PT_Panel)
+    bpy.types.VIEW3D_MT_mesh_add.append(menu_func)
 
 
 def unregister():
     bpy.utils.unregister_class(TEXT_ON_FACES_OT_operator)
+    bpy.utils.unregister_class(TEXT_ON_FACES_PT_Panel)
+    bpy.types.VIEW3D_MT_mesh_add.remove(menu_func)
 
 
 if __name__ == "__main__":
