@@ -12,22 +12,31 @@ class TEXT_ON_FACES_OT_operator(bpy.types.Operator):
         max=10.0
     )
 
+    letter_spacing: bpy.props.FloatProperty(
+        name="Letter Spacing",
+        description="Spacing between letters",
+        default=0.1,
+        min=0.0,
+        max=1.0
+    )
+
     def execute(self, context):
         arial_cyrillic_font_path = "C:/Windows/Fonts/Arial.ttf"
         
         # Остальной код остается без изменений...
 
-        # Функция для создания текста с заданным текстом, шрифтом, размером и материалом
-        def create_text(text, font, material, size):
+        # Функция для создания текста с заданным текстом, шрифтом, размером, межбуквенным интервалом и материалом
+        def create_text(text, font, material, size, spacing):
             bpy.ops.object.text_add()
             text_obj = bpy.context.object
             text_obj.data.body = text
             text_obj.data.font = font
             text_obj.active_material = material
             
-            # Устанавливаем параметры размера и экструзии текста
+            # Устанавливаем параметры размера и интервала между буквами текста
             text_obj.scale *= size
             text_obj.data.extrude = size * 0.2  # Привязываем экструзию к размеру текста
+            text_obj.data.space_character = spacing
             
             return text_obj
 
@@ -37,7 +46,7 @@ class TEXT_ON_FACES_OT_operator(bpy.types.Operator):
         
         # Для каждого выбранного объекта MESH создаем текст на его гранях
         for selected_obj in selected_objects:
-            create_text_on_faces(selected_obj, material_baze_text, self.text_size)
+            create_text_on_faces(selected_obj, material_baze_text, self.text_size, self.letter_spacing)
         
         return {'FINISHED'}
 
@@ -45,15 +54,8 @@ class TEXT_ON_FACES_OT_operator(bpy.types.Operator):
 
     def draw(self, context):
         layout = self.layout
-        layout.operator("object.text_on_faces_operator").text_size
+        layout.operator("object.text_on_faces_operator")
+        layout.prop(self, "text_size")
+        layout.prop(self, "letter_spacing")
 
-def register():
-    bpy.utils.register_class(TEXT_ON_FACES_OT_operator)
-    bpy.utils.register_class(TEXT_ON_FACES_PT_Panel)
-
-def unregister():
-    bpy.utils.unregister_class(TEXT_ON_FACES_OT_operator)
-    bpy.utils.unregister_class(TEXT_ON_FACES_PT_Panel)
-
-if __name__ == "__main__":
-    register()
+# Остальной код остается без изменений...
