@@ -28,14 +28,18 @@ class TEXT_ON_FACES_PT_Panel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         layout.operator("object.text_on_faces_operator")
-        layout.operator("object.set_name_operator")  # Это кнопка Set Name
+        layout.operator("object.set_name_operator", text="Set Name")  # Кнопка Set Name
 
 class SET_NAME_OT_operator(bpy.types.Operator):
     bl_idname = "object.set_name_operator"
     bl_label = "Set Name"
 
     def execute(self, context):
-        # Здесь можно добавить логику для изменения имени объекта
+        selected_objects = bpy.context.selected_objects
+        for obj in selected_objects:
+            if obj.type == 'MESH':
+                obj.name = "New Name"
+        
         return {'FINISHED'}
 
 def register():
